@@ -16,19 +16,38 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setSuccessMsg(null)
 
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({ email, password })
+      const { data, error } = await supabase.auth.signUp({ email, password })
       if (error) { setError(error.message); setLoading(false); return }
-      router.push('/onboarding')
+
+      // Nếu có session ngay → email confirmation đã tắt → vào onboarding
+      if (data.session) {
+        router.push('/onboarding')
+        return
+      }
+
+      // Nếu không có session → Supabase đang chờ xác nhận email
+      setSuccessMsg('Đã gửi email xác nhận! Kiểm tra hộp thư rồi click link để hoàn tất đăng ký nhé 💌')
+      setLoading(false)
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) { setError('Email hoặc mật khẩu không đúng 🥺'); setLoading(false); return }
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          setError('Email chưa được xác nhận. Kiểm tra hộp thư và click link xác nhận nhé 📧')
+        } else {
+          setError('Email hoặc mật khẩu không đúng 🥺')
+        }
+        setLoading(false)
+        return
+      }
 
       // Check if profile exists
       const { data: profile } = await supabase
@@ -118,6 +137,16 @@ export default function LoginPage() {
                 className="text-sm text-red-400 bg-red-50 rounded-xl px-3 py-2"
               >
                 {error}
+              </motion.p>
+            )}
+
+            {successMsg && (
+              <motion.p
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-sm text-green-600 bg-green-50 rounded-xl px-3 py-2 text-center leading-relaxed"
+              >
+                {successMsg}
               </motion.p>
             )}
 
