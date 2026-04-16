@@ -119,7 +119,7 @@ export default function DailyEntryModal({ date, userId, onClose, onSaved }: Prop
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-sm pb-[72px]"
         onClick={onClose}
       >
         <motion.div
@@ -127,7 +127,7 @@ export default function DailyEntryModal({ date, userId, onClose, onSaved }: Prop
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="w-full max-w-lg bg-white rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
+          className="w-full max-w-lg bg-white rounded-t-3xl p-6 max-h-[calc(100vh-72px)] overflow-y-auto pb-8"
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
