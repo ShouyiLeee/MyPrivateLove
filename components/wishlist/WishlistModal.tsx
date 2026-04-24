@@ -27,15 +27,19 @@ export default function WishlistModal({ userId, item, onClose, onSaved, onDelete
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [uploadError, setUploadError] = useState('')
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
+    setUploadError('')
     const ext = file.name.split('.').pop()
     const path = `${userId}/${Date.now()}.${ext}`
     const { data, error } = await supabase.storage.from('wishlist-images').upload(path, file)
-    if (!error && data) {
+    if (error) {
+      setUploadError('Upload ảnh thất bại. Kiểm tra bucket wishlist-images trong Supabase.')
+    } else if (data) {
       const { data: urlData } = supabase.storage.from('wishlist-images').getPublicUrl(data.path)
       setImageUrl(urlData.publicUrl)
     }
@@ -115,6 +119,10 @@ export default function WishlistModal({ userId, item, onClose, onSaved, onDelete
               )}
             </div>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+
+            {uploadError && (
+              <p className="text-xs text-red-400 bg-red-50 rounded-xl px-3 py-2">{uploadError}</p>
+            )}
 
             {/* Image URL alternative */}
             <input

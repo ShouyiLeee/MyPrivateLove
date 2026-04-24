@@ -26,6 +26,7 @@ export default function DailyEntryModal({ date, userId, onClose, onSaved }: Prop
   const [locLat, setLocLat] = useState<number | null>(null)
   const [locLng, setLocLng] = useState<number | null>(null)
   const [uploadingImg, setUploadingImg] = useState(false)
+  const [uploadError, setUploadError] = useState('')
 
   useEffect(() => {
     async function load() {
@@ -74,10 +75,13 @@ export default function DailyEntryModal({ date, userId, onClose, onSaved }: Prop
     const file = e.target.files?.[0]
     if (!file) return
     setUploadingImg(true)
+    setUploadError('')
     const ext = file.name.split('.').pop()
     const path = `${userId}/${date}-${Date.now()}.${ext}`
     const { data, error } = await supabase.storage.from('entry-images').upload(path, file)
-    if (!error && data) {
+    if (error) {
+      setUploadError('Upload ảnh thất bại. Kiểm tra bucket entry-images trong Supabase.')
+    } else if (data) {
       const { data: urlData } = supabase.storage.from('entry-images').getPublicUrl(data.path)
       setImages(imgs => [...imgs, urlData.publicUrl])
     }
@@ -195,6 +199,9 @@ export default function DailyEntryModal({ date, userId, onClose, onSaved }: Prop
               {/* Images */}
               <div>
                 <p className="text-sm font-bold text-[#3D2C35] mb-2">Ảnh kỷ niệm 📷</p>
+                {uploadError && (
+                  <p className="text-xs text-red-400 mb-2 bg-red-50 rounded-xl px-3 py-2">{uploadError}</p>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {images.map((url, i) => (
                     <div key={i} className="relative w-20 h-20 rounded-2xl overflow-hidden">
