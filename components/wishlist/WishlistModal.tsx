@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
-import { WishlistItem, WishlistStatus, WISHLIST_STATUS_CONFIG } from '@/types'
+import { WishlistItem, WishlistStatus } from '@/types'
 
 interface Props {
   userId: string
@@ -159,23 +159,6 @@ export default function WishlistModal({ userId, item, onClose, onSaved, onDelete
                 rows={2}
                 className="w-full px-4 py-3 rounded-2xl border-2 border-[#FFD6E0] bg-[#FFF9F0] text-sm text-[#3D2C35] placeholder-[#C4A0B0] resize-none"
               />
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="text-xs font-bold text-[#3D2C35] block mb-2">Trạng thái</label>
-              <div className="flex gap-2">
-                {(Object.entries(WISHLIST_STATUS_CONFIG) as [WishlistStatus, typeof WISHLIST_STATUS_CONFIG[WishlistStatus]][]).map(([s, cfg]) => (
-                  <button
-                    key={s}
-                    onClick={() => setStatus(s)}
-                    className={`flex-1 py-2 rounded-2xl text-xs font-bold transition-all ${status === s ? 'scale-105 shadow-sm ring-2 ring-[#FF85A1]' : 'opacity-70'}`}
-                    style={{ backgroundColor: cfg.color }}
-                  >
-                    {cfg.emoji} {cfg.label}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Save */}

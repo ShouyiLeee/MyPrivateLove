@@ -51,12 +51,11 @@ export interface Relationship {
 
 // --- New feature types ---
 
-export type WishlistStatus = 'want' | 'gifted' | 'owned'
+export type WishlistStatus = 'want' | 'gifted'
 
 export const WISHLIST_STATUS_CONFIG: Record<WishlistStatus, { emoji: string; label: string; color: string }> = {
-  want:   { emoji: '💭', label: 'Muốn có',    color: '#FFF3B0' },
-  gifted: { emoji: '🎁', label: 'Được tặng',  color: '#FFD6E0' },
-  owned:  { emoji: '✅', label: 'Đã có',       color: '#C8F5D9' },
+  want:   { emoji: '💭', label: 'Muốn có',   color: '#FFF3B0' },
+  gifted: { emoji: '🎁', label: 'Đã tặng',   color: '#FFD6E0' },
 }
 
 export interface WishlistItem {

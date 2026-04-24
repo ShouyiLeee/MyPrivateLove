@@ -4,15 +4,14 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { WishlistItem, WishlistStatus, WISHLIST_STATUS_CONFIG } from '@/types'
+import { WishlistItem, WishlistStatus } from '@/types'
 import WishlistCard from '@/components/wishlist/WishlistCard'
 import WishlistModal from '@/components/wishlist/WishlistModal'
 
 const STATUS_FILTERS: { value: WishlistStatus | 'all'; label: string }[] = [
   { value: 'all',    label: 'Tất cả' },
   { value: 'want',   label: '💭 Muốn có' },
-  { value: 'gifted', label: '🎁 Được tặng' },
-  { value: 'owned',  label: '✅ Đã có' },
+  { value: 'gifted', label: '🎁 Đã tặng' },
 ]
 
 export default function WishlistPage() {
@@ -52,6 +51,16 @@ export default function WishlistPage() {
 
   function handleDeleted(id: string) {
     setItems(prev => prev.filter(i => i.id !== id))
+  }
+
+  async function handleGifted(item: WishlistItem) {
+    const { data } = await supabase
+      .from('wishlist_items')
+      .update({ status: 'gifted' })
+      .eq('id', item.id)
+      .select()
+      .single()
+    if (data) setItems(prev => prev.map(i => i.id === data.id ? data : i))
   }
 
   return (
@@ -111,6 +120,7 @@ export default function WishlistPage() {
               item={item}
               index={i}
               onClick={() => { setEditItem(item); setShowModal(true) }}
+              onGifted={handleGifted}
             />
           ))}
         </div>
@@ -119,17 +129,16 @@ export default function WishlistPage() {
       {/* Stats bar */}
       {items.length > 0 && (
         <div className="mt-6 bg-white rounded-2xl p-4 flex justify-around border border-[#FFE8D6]">
-          {(['want', 'gifted', 'owned'] as WishlistStatus[]).map(s => {
-            const cfg = WISHLIST_STATUS_CONFIG[s]
-            const count = items.filter(i => i.status === s).length
-            return (
-              <div key={s} className="flex flex-col items-center gap-1">
-                <span className="text-xl">{cfg.emoji}</span>
-                <span className="text-lg font-extrabold text-[#3D2C35]">{count}</span>
-                <span className="text-xs text-[#C4A0B0]">{cfg.label}</span>
-              </div>
-            )
-          })}
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-xl">💭</span>
+            <span className="text-lg font-extrabold text-[#3D2C35]">{items.filter(i => i.status === 'want').length}</span>
+            <span className="text-xs text-[#C4A0B0]">Muốn có</span>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-xl">🎁</span>
+            <span className="text-lg font-extrabold text-[#3D2C35]">{items.filter(i => i.status === 'gifted').length}</span>
+            <span className="text-xs text-[#C4A0B0]">Đã tặng</span>
+          </div>
         </div>
       )}
 
