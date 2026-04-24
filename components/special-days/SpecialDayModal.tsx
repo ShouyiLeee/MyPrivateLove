@@ -52,15 +52,15 @@ export default function SpecialDayModal({ userId, day, onClose, onSaved, onDelet
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-sm pb-[72px]"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4"
         onClick={onClose}
       >
         <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-8"
+          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 260 }}
+          className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-xl"
           onClick={e => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-5">
