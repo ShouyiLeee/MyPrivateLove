@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { DailyEntry, MoodType, TagType, MOOD_CONFIG, TAG_CONFIG } from '@/types'
+import { compressImage } from '@/lib/helpers'
 
 interface Props {
   date: string       // 'YYYY-MM-DD'
@@ -76,14 +77,18 @@ export default function DailyEntryModal({ date, userId, onClose, onSaved }: Prop
     if (!file) return
     setUploadingImg(true)
     setUploadError('')
-    const ext = file.name.split('.').pop()
-    const path = `${userId}/${date}-${Date.now()}.${ext}`
-    const { data, error } = await supabase.storage.from('entry-images').upload(path, file)
-    if (error) {
-      setUploadError('Upload ảnh thất bại. Kiểm tra bucket entry-images trong Supabase.')
-    } else if (data) {
-      const { data: urlData } = supabase.storage.from('entry-images').getPublicUrl(data.path)
-      setImages(imgs => [...imgs, urlData.publicUrl])
+    try {
+      const compressed = await compressImage(file)
+      const path = `${userId}/${date}-${Date.now()}.jpg`
+      const { data, error } = await supabase.storage.from('entry-images').upload(path, compressed, { contentType: 'image/jpeg' })
+      if (error) {
+        setUploadError('Upload ảnh thất bại. Kiểm tra bucket entry-images trong Supabase.')
+      } else if (data) {
+        const { data: urlData } = supabase.storage.from('entry-images').getPublicUrl(data.path)
+        setImages(imgs => [...imgs, urlData.publicUrl])
+      }
+    } catch {
+      setUploadError('Không thể xử lý ảnh này.')
     }
     setUploadingImg(false)
     if (fileRef.current) fileRef.current.value = ''

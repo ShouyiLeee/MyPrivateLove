@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { WishlistItem, WishlistStatus } from '@/types'
+import { compressImage } from '@/lib/helpers'
 
 interface Props {
   userId: string
@@ -34,14 +35,18 @@ export default function WishlistModal({ userId, item, onClose, onSaved, onDelete
     if (!file) return
     setUploading(true)
     setUploadError('')
-    const ext = file.name.split('.').pop()
-    const path = `${userId}/${Date.now()}.${ext}`
-    const { data, error } = await supabase.storage.from('wishlist-images').upload(path, file)
-    if (error) {
-      setUploadError('Upload ảnh thất bại. Kiểm tra bucket wishlist-images trong Supabase.')
-    } else if (data) {
-      const { data: urlData } = supabase.storage.from('wishlist-images').getPublicUrl(data.path)
-      setImageUrl(urlData.publicUrl)
+    try {
+      const compressed = await compressImage(file, 800)
+      const path = `${userId}/${Date.now()}.jpg`
+      const { data, error } = await supabase.storage.from('wishlist-images').upload(path, compressed, { contentType: 'image/jpeg' })
+      if (error) {
+        setUploadError('Upload ảnh thất bại. Kiểm tra bucket wishlist-images trong Supabase.')
+      } else if (data) {
+        const { data: urlData } = supabase.storage.from('wishlist-images').getPublicUrl(data.path)
+        setImageUrl(urlData.publicUrl)
+      }
+    } catch {
+      setUploadError('Không thể xử lý ảnh này.')
     }
     setUploading(false)
     if (fileRef.current) fileRef.current.value = ''

@@ -67,6 +67,31 @@ export function calcMoodStats(entries: { mood: MoodType | null }[]) {
   return pct
 }
 
+// Compress image using Canvas before upload (max 1200px wide, quality 0.82, output JPEG)
+export async function compressImage(file: File, maxWidth = 1200, quality = 0.82): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      let { width, height } = img
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width)
+        width = maxWidth
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { reject(new Error('canvas context unavailable')); return }
+      ctx.drawImage(img, 0, 0, width, height)
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('toBlob failed')), 'image/jpeg', quality)
+    }
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('image load failed')) }
+    img.src = objectUrl
+  })
+}
+
 // Auto-detect emoji for special day title
 export function specialDayEmoji(title: string): string {
   const t = title.toLowerCase()
