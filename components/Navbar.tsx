@@ -7,10 +7,10 @@ import { createClient } from '@/lib/supabase/client'
 
 const NAV_ITEMS = [
   { href: '/dashboard', icon: '🏠', label: 'Trang chủ' },
-  { href: '/calendar', icon: '📅', label: 'Lịch' },
-  { href: '/map', icon: '🗺️', label: 'Bản đồ' },
-  { href: '/timeline', icon: '📖', label: 'Dòng thời gian' },
-  { href: '/profile', icon: '👤', label: 'Hồ sơ' },
+  { href: '/calendar',  icon: '📅', label: 'Lịch' },
+  { href: '/gallery',   icon: '🖼️', label: 'Ảnh' },
+  { href: '/wishlist',  icon: '💝', label: 'Wishlist' },
+  { href: '/profile',   icon: '👤', label: 'Hồ sơ' },
 ]
 
 export default function Navbar() {
@@ -24,7 +24,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-t border-[#FFD6E0] pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-t border-[#FFD6E0]">
       <div className="flex items-center justify-around px-2 py-2 max-w-lg mx-auto">
         {NAV_ITEMS.map(item => {
           const isActive = pathname === item.href
@@ -40,12 +40,6 @@ export default function Navbar() {
                 <span className={`text-[10px] font-semibold transition-colors ${isActive ? 'text-[#FF85A1]' : 'text-[#C4A0B0]'}`}>
                   {item.label}
                 </span>
-                {isActive && (
-                  <motion.div
-                    layoutId="nav-indicator"
-                    className="absolute bottom-1 w-1 h-1 rounded-full bg-[#FF85A1]"
-                  />
-                )}
               </motion.div>
             </Link>
           )
